@@ -7,4 +7,5 @@ RUN yum -y install awscli && yum -y clean all
 
 COPY backup.sh /
 
+WORKDIR /tmp
 ENTRYPOINT [ "/backup.sh" ]
