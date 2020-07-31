@@ -40,7 +40,7 @@ encrypted_file="secrets.enc"
 
 openssl rand -base64 128 > "${key}"
 openssl rsautl -encrypt -inkey "${cert_file}" -pubin -in "${key}" -out "${encrypted_key}"
-openssl enc -aes256 -salt -in "${export_file}" -out "${encrypted_file}" -pass "file:${key}" 
+openssl enc -aes256 -md sha256 -salt -in "${export_file}" -out "${encrypted_file}" -pass "file:${key}" 
 
 output="secret.enc.tar"
 tar cf "${output}" "${encrypted_key}" "${encrypted_file}"
