@@ -1,0 +1,105 @@
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  labels:
+    app: sealed-secrets
+  name: sealed-secrets-backup
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            app: sealed-secrets
+          name: sealed-secrets-backup
+        spec:
+          containers:
+          - env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: sealed-secrets-backup
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sealed-secrets-backup
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: PUBLIC_KEY
+              value: /config/certificate.crt
+            image: quay.io/lukeelten/sealed-secrets-backup:latest
+            imagePullPolicy: Always
+            name: backup
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /config
+              name: encryption-cert
+              readOnly: true
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          serviceAccount: sealed-secrets-backup
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: encryption-cert
+            secret:
+              defaultMode: 420
+              secretName: sealed-secrets-backup
+  schedule: 30 3 * * *
+  successfulJobsHistoryLimit: 1
+  suspend: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name:  sealed-secrets-backup
+  labels:
+    app: sealed-secrets
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: sealed-secrets
+  name: sealed-secrets-backup
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: sealed-secrets
+  name: sealed-secrets-backup
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sealed-secrets-backup
+subjects:
+  - kind: ServiceAccount
+    name: sealed-secrets-backup
+#---
+#apiVersion: v1
+#kind: Secret
+#metadata:
+#  name: sealed-secrets-backup
+#  labels:
+#    app: sealed-secrets
+#type: Opaque
+#data:
+#  AWS_ACCESS_KEY_ID: ''
+#  AWS_SECRET_ACCESS_KEY: ''
+#  certificate.crt: ''
