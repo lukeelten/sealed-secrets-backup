@@ -47,6 +47,6 @@ tar cf "${output}" "${encrypted_key}" "${encrypted_file}"
 
 
 target_name=$(date '+%Y-%m-%d--%H-%M').tar
-aws s3 cp "${encrypted_file}" "s3://${target_bucket}/${target_name}"
+aws s3 cp "${output}" "s3://${target_bucket}/${target_name}"
 
 shred -u -z "${key}" "${output}" "${export_file}" "${encrypted_key}" "${encrypted_file}"
