@@ -96,16 +96,16 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: sealed-secrets-backup
-#---
-#apiVersion: v1
-#kind: Secret
-#metadata:
-#  name: sealed-secrets-backup
-#  labels:
-#    app: sealed-secrets
-#type: Opaque
-#data:
-#  AWS_ACCESS_KEY_ID: ''
-#  AWS_SECRET_ACCESS_KEY: ''
-#  TARGET_BUCKET: ''
-#  certificate.crt: ''
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sealed-secrets-backup
+  labels:
+    app: sealed-secrets
+type: Opaque
+data:
+  AWS_ACCESS_KEY_ID: ''
+  AWS_SECRET_ACCESS_KEY: ''
+  TARGET_BUCKET: ''
+  certificate.crt: ''
