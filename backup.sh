@@ -32,9 +32,9 @@ encrypted_key="key.enc"
 encrypted_file="secrets.enc"
 
 
-openssl rand -base64 > "${key}"
+openssl rand -base64 128 > "${key}"
 openssl rsautl -encrypt -inkey "${cert_file}" -pubin -in "${key}" -out "${encrypted_key}"
-openssl enc -aes256 -salt -in "${export_file}" -out "${encrypted_file}" -pass "file:${key}"
+openssl enc -aes256 -salt -pbkdf2 -in "${export_file}" -out "${encrypted_file}" -pass "file:${key}" 
 
 output="secret.enc.tar"
 tar cf "${output}" "${encrypted_key}" "${encrypted_file}"
@@ -43,4 +43,4 @@ tar cf "${output}" "${encrypted_key}" "${encrypted_file}"
 target_name=$(date '+%Y-%m-%d--%H-%M').tar
 aws s3 cp "${encrypted_file}" "s3://ride2go-sealed-secret-backup/${target_name}"
 
-exit $?
+shred -u -z "${key}" "${output}" "${export_file}" "${encrypted_key}" "${encrypted_file}"
