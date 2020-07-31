@@ -12,6 +12,12 @@ if [[ -z "${AWS_ACCESS_KEY_ID}" || -z "${AWS_SECRET_ACCESS_KEY}" ]]; then
     exit 2
 fi
 
+target_bucket=${TARGET_BUCKET}
+if [[ -z "${target_bucket}" ]]; then
+    echo "Please specify a target S3 bucket"
+    exit 3
+fi
+
 namespace=${NAMESPACE}
 if [[ -z "${namespace}" ]]; then
     if [[ -r "/var/run/secrets/kubernetes.io/serviceaccount/namespace" ]]; then
@@ -41,6 +47,6 @@ tar cf "${output}" "${encrypted_key}" "${encrypted_file}"
 
 
 target_name=$(date '+%Y-%m-%d--%H-%M').tar
-aws s3 cp "${encrypted_file}" "s3://ride2go-sealed-secret-backup/${target_name}"
+aws s3 cp "${encrypted_file}" "s3://${target_bucket}/${target_name}"
 
 shred -u -z "${key}" "${output}" "${export_file}" "${encrypted_key}" "${encrypted_file}"

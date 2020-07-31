@@ -34,6 +34,11 @@ spec:
                   key: AWS_SECRET_ACCESS_KEY
             - name: PUBLIC_KEY
               value: /config/certificate.crt
+            - name: TARGET_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: sealed-secrets-backup
+                  key: TARGET_BUCKET
             image: quay.io/lukeelten/sealed-secrets-backup:latest
             imagePullPolicy: Always
             name: backup
@@ -102,4 +107,5 @@ subjects:
 #data:
 #  AWS_ACCESS_KEY_ID: ''
 #  AWS_SECRET_ACCESS_KEY: ''
+#  TARGET_BUCKET: ''
 #  certificate.crt: ''
